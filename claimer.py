@@ -85,4 +85,4 @@ while attempt <= max_attempts:
         print(f"SYS_ERROR: {e}", flush=True)
         
     attempt += 1
-    time.sleep(60)
+    time.sleep(120)
