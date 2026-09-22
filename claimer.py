@@ -37,12 +37,11 @@ except Exception as e:
     print(f"ERROR_CONFIG: {e}", flush=True)
     sys.exit(1)
 
-COMPARTMENT_ID = "ocid1.tenancy.oc1..aaaaaaaaqb6bezve4436g3yetb3lma3tme2sbrim6lf2e5vqn7vma3xfzcpq"
-SUBNET_ID = "ocid1.subnet.oc1.ap-batam-1.aaaaaaaahpxfeowl47vb2kxjybb5fz4h7s3bai6pdcwcqgho5jyhzrycnm2q"
-IMAGE_ID = "ocid1.image.oc1.ap-batam-1.aaaaaaaaq2pu7bbvbgiio3g7vqqiiklewdd7w5lvfnqs4uwiuy7vfm4ypwja"
+COMPARTMENT_ID = os.environ["OCI_COMPARTMENT"]
+SUBNET_ID = os.environ["OCI_SUBNET"]
+IMAGE_ID = os.environ["OCI_IMAGE"]
+SSH_PUBLIC_KEY = os.environ["OCI_SSH_KEY"]
 AVAILABILITY_DOMAIN = "vtrY:AP-BATAM-1-AD-1"
-
-SSH_PUBLIC_KEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCM+9JgZso+DlS70TtIKFooCSsWV8+jivtZYnveQNJP0ZZdfUJVfb9L3rie/lh+Vmfrzqr0X9yrWdvRl67AQ0O8IOvcqQNtf0sHwpJH/9LLWthxlby+SNYNdB/WLMz2MTllxgis8rlDO2C17izT37T7c5Z6olXTSdRojxSJyTqVgeekzd1uVtUzizt1+7kI+rOeGBuYLTheeeOfXNfZXFVjTc2sVK90oEq8Edm3QajWG3ibLgBFZSnFjT7h/nZJGRbe8ThwhPpPspsnxjSAYSw7nTjlDAOmvM3g83bzv7IaAgxqiRo02huZEn/gU+KdE5XX3W+Z0ec95r8Q2RSNSbob u0_a663@localhost"
 
 instance_details = oci.core.models.LaunchInstanceDetails(
     display_name="Verlexy_Oracle_VPS",
@@ -79,6 +78,8 @@ while attempt <= max_attempts:
     except oci.exceptions.ServiceError as e:
         if e.status == 500 or "Out of capacity" in str(e.message) or "LimitExhausted" in str(e.code):
             print("OUT_OF_CAPACITY", flush=True)
+        elif e.status == 429 or "Too many requests" in str(e.message):
+            print("RATE_LIMITED_WAITING_120S", flush=True)
         else:
             print(f"API_ERROR: {e.message}", flush=True)
     except Exception as e:
