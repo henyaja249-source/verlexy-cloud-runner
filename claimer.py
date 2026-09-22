@@ -32,9 +32,8 @@ with open(config_path, "w") as f:
 try:
     config = oci.config.from_file(config_path, "DEFAULT")
     compute_client = oci.core.ComputeClient(config, timeout=(15, 15))
-    print("🟢 [SYSTEM]: OCI Configuration Loaded Successfully on GitHub Actions!")
 except Exception as e:
-    print(f"🔴 [ERROR]: Failed to load OCI config: {e}")
+    print(f"ERROR_CONFIG: {e}")
     sys.exit(1)
 
 COMPARTMENT_ID = "ocid1.tenancy.oc1..aaaaaaaaqb6bezve4436g3yetb3lma3tme2sbrim6lf2e5vqn7vma3xfzcpq"
@@ -68,26 +67,21 @@ instance_details = oci.core.models.LaunchInstanceDetails(
 )
 
 attempt = 1
-max_attempts = 30  # Berjalan ~30 menit per sesi (setiap 60 detik)
-print("🚀 [STARTING]: Claiming loop started. Searching for free slots in ap-batam-1...")
+max_attempts = 30
 
 while attempt <= max_attempts:
     try:
-        print(f"⏳ [ATTEMPT #{attempt}]: Requesting instance creation...")
+        print(f"ATTEMPT #{attempt}")
         response = compute_client.launch_instance(instance_details)
-        print("\n🎉🎉🎉 SUCCESS! INSTANCE IS CREATED SUCCESSFULLY! 🎉🎉🎉")
-print(f"Instance ID: {response.data.id}")
-        print("Please check your Oracle Cloud Console dashboard!")
+        print(f"SUCCESS: {response.data.id}")
         sys.exit(0)
     except oci.exceptions.ServiceError as e:
-        if e.status == 500 or "Out of capacity" in e.message or "LimitExhausted" in e.code:
-            print("❌ [STATUS]: Slot is Full (Out of Capacity). Cooldown for 60 seconds...")
+        if e.status == 500 or "Out of capacity" in str(e.message) or "LimitExhausted" in str(e.code):
+            print("OUT_OF_CAPACITY")
         else:
-            print(f"⚠️ [WARNING]: Oracle returned API error: {e.message}")
+            print(f"API_ERROR: {e.message}")
     except Exception as e:
-        print(f"🔴 [CRITICAL]: Connection or system error: {e}")
+        print(f"SYS_ERROR: {e}")
         
     attempt += 1
     time.sleep(60)
-
-print("⏳ Sesi 30 menit selesai. GitHub Actions akan mengulang siklus berikutnya secara otomatis!")
