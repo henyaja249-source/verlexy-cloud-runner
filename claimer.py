@@ -68,7 +68,7 @@ instance_details = oci.core.models.LaunchInstanceDetails(
 )
 
 attempt = 1
-max_attempts = 30
+max_attempts = 15
 
 while attempt <= max_attempts:
     try:
