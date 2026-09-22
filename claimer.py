@@ -32,8 +32,9 @@ with open(config_path, "w") as f:
 try:
     config = oci.config.from_file(config_path, "DEFAULT")
     compute_client = oci.core.ComputeClient(config, timeout=(15, 15))
+    print("CONFIG_LOADED", flush=True)
 except Exception as e:
-    print(f"ERROR_CONFIG: {e}")
+    print(f"ERROR_CONFIG: {e}", flush=True)
     sys.exit(1)
 
 COMPARTMENT_ID = "ocid1.tenancy.oc1..aaaaaaaaqb6bezve4436g3yetb3lma3tme2sbrim6lf2e5vqn7vma3xfzcpq"
@@ -71,17 +72,17 @@ max_attempts = 30
 
 while attempt <= max_attempts:
     try:
-        print(f"ATTEMPT #{attempt}")
+        print(f"ATTEMPT #{attempt}", flush=True)
         response = compute_client.launch_instance(instance_details)
-        print(f"SUCCESS: {response.data.id}")
+        print(f"SUCCESS: {response.data.id}", flush=True)
         sys.exit(0)
     except oci.exceptions.ServiceError as e:
         if e.status == 500 or "Out of capacity" in str(e.message) or "LimitExhausted" in str(e.code):
-            print("OUT_OF_CAPACITY")
+            print("OUT_OF_CAPACITY", flush=True)
         else:
-            print(f"API_ERROR: {e.message}")
+            print(f"API_ERROR: {e.message}", flush=True)
     except Exception as e:
-        print(f"SYS_ERROR: {e}")
+        print(f"SYS_ERROR: {e}", flush=True)
         
     attempt += 1
     time.sleep(60)
