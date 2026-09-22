@@ -1,4 +1,4 @@
-name: Oracle Cloud Running
+name: Oracle Cloud Runner
 
 on:
   workflow_dispatch:
@@ -24,4 +24,8 @@ jobs:
         env:
           OCI_CONFIG: ${{ secrets.OCI_CONFIG }}
           OCI_KEY: ${{ secrets.OCI_KEY }}
+          OCI_COMPARTMENT: ${{ secrets.OCI_COMPARTMENT }}
+          OCI_SUBNET: ${{ secrets.OCI_SUBNET }}
+          OCI_IMAGE: ${{ secrets.OCI_IMAGE }}
+          OCI_SSH_KEY: ${{ secrets.OCI_SSH_KEY }}
         run: python claimer.py
